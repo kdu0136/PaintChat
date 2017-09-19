@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="70dp"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:padding="2dp">
+
+    <LinearLayout
+        android:id="@+id/layout_back"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/game_client_shape">
+
+        <TextView
+            android:id="@+id/textView_ready"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="R"
+            android:textSize="15sp"
+            android:textStyle="normal|bold"
+            android:textColor="@color/colorAccent"/>
+
+        <TextView
+            android:id="@+id/textView_nick"
+            android:layout_marginStart="3dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="닉네임"
+            android:textSize="15sp"
+            android:textStyle="normal|bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

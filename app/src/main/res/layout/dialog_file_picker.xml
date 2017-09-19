@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/map_shape"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView_DialogName"
+        android:layout_marginStart="10dp"
+        android:text="파일 전송"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|start"
+        android:textColor="@color/colorPrimary"
+        android:layout_margin="10dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <View
+            android:layout_height="3dip"
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryDark" />
+
+        <TextView
+            android:id="@+id/textView_photo"
+            android:text="사진 촬영"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|start"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <View
+            android:layout_height="1dip"
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryDark"/>
+
+        <TextView
+            android:id="@+id/textView_gallery"
+            android:text="앨범에서 사진 선택"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|start"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <View
+            android:layout_height="1dip"
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryDark"/>
+
+        <TextView
+            android:id="@+id/textView_video"
+            android:text="앨범에서 동영상 선택"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|start"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <View
+            android:layout_height="1dip"
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryDark"/>
+
+        <TextView
+            android:id="@+id/textView_paint"
+            android:text="직접 그리기"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|start"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    </LinearLayout>
+
+</LinearLayout>

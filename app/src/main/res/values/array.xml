@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="num_of_room">
+        <item >2명</item>
+        <item >3명</item>
+        <item >4명</item>
+        <item >5명</item>
+        <item >6명</item>
+        <item >7명</item>
+        <item >8명</item>
+    </string-array>
+</resources>

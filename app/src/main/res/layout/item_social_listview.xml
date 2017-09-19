@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="71dp"
+    android:descendantFocusability="blocksDescendants"
+    android:layout_marginTop="2dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:background="@drawable/selector"
+    android:id="@+id/layout_background">
+
+    <ImageView
+        android:id="@+id/imageView_profile"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"/>
+
+    <TextView
+        android:id="@+id/textView_nick"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="닉네임"
+        android:textSize="15sp"
+        android:layout_marginStart="10dp"
+        android:layout_gravity="center"
+        android:textStyle="normal|bold" />
+
+</LinearLayout>

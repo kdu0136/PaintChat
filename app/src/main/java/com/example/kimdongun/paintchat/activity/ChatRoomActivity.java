@@ -374,7 +374,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
             boolean myMsg = client_.account_.id_.equals(id); //메시지 주인이 자기면 true 아니면 false
             Date date = new Date(now);
-            SimpleDateFormat sdfDate = new SimpleDateFormat("------- yyyy년 MM월 dd일 E요일 -------");
+            SimpleDateFormat sdfDate = new SimpleDateFormat("----- yyyy년 MM월 dd일 E요일 -----");
             SimpleDateFormat sdfTime = new SimpleDateFormat("aa hh:mm");
             String strDate = sdfDate.format(date);
             String strTime = sdfTime.format(date);
@@ -471,7 +471,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
         String receiveRoomKey = (String)map.get("roomKey");
         Date date = new Date((long)map.get("date"));
-        SimpleDateFormat sdfDate = new SimpleDateFormat("------- yyyy년 MM월 dd일 E요일 -------");
+        SimpleDateFormat sdfDate = new SimpleDateFormat("----- yyyy년 MM월 dd일 E요일 -----");
         SimpleDateFormat sdfTime = new SimpleDateFormat("aa hh:mm");
         String strDate = sdfDate.format(date);
         String strTime = sdfTime.format(date);

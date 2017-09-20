@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -58,7 +59,8 @@ import java.util.HashMap;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class GameRoomActivity extends AppCompatActivity implements View.OnClickListener, HandlerMessageDecode, SocketServiceExecutor, DialogInterface.OnDismissListener {
+public class GameRoomActivity extends AppCompatActivity implements View.OnClickListener, HandlerMessageDecode, SocketServiceExecutor,
+                                                                    DialogInterface.OnDismissListener, AdapterView.OnItemClickListener {
     private String gameRoomKey_; //방 키값
     private String gameHostNick_; //방장 닉네임
     private String quizHostNick_; //문제 출제자 닉네임
@@ -140,13 +142,15 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
                     Object[] values = {""};
                     String jsonStr = JsonEncode.getInstance().encodeCommandJson("clientList", keys, values);
                     //서버로 전송
-                    socketService_.sendMessage(jsonStr);
+                    if (isLiveBinder)
+                        socketService_.sendMessage(jsonStr);
 
                     if(isGameStart_) {
                         //이때까지 그린 그림 정보 가져오기 요청
                         String jsonStr2 = JsonEncode.getInstance().encodeCommandJson("loadCanvas", keys, values);
                         //서버로 전송
-                        socketService_.sendMessage(jsonStr2);
+                        if (isLiveBinder)
+                            socketService_.sendMessage(jsonStr2);
                     }
                 }else if(str.equals("connectFail")){ //소켓 연결 실패
                     Toast.makeText(GameRoomActivity.this, "소켓 서버와 연결을 실패하였습니다.", Toast.LENGTH_SHORT).show();
@@ -294,6 +298,7 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
         imageView_palette.setOnClickListener(this);
         imageView_restore.setOnClickListener(this);
         imageView_clear.setOnClickListener(this);
+        listView_nick.setOnItemClickListener(this);
     }
 
     @Override
@@ -460,6 +465,36 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public void onItemClick(AdapterView<?> parent, View view, int index, long id) {
+        if(gameHostNick_.equals(client_.account_.nick_) && !isGameStart_){ //자신이 방장인 경우에 유저 리스트 터치하면 강퇴 다이얼로그 띄움 && 게임 중 아닐 때
+            final GameClientListViewItem item = (GameClientListViewItem)gameClientListViewAdapter.getItem(index);
+            if(!item.nick_.equals(client_.account_.nick_)) { //자신은 강퇴 못하게 막기
+                AlertDialog.Builder alert_confirm = new AlertDialog.Builder(GameRoomActivity.this);
+                alert_confirm.setMessage("'" + item.nick_ + "'님을 강제퇴장 시키겠습니까?").setCancelable(false).setPositiveButton("강제 퇴장",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String[] keys = {"id"};
+                                Object[] values = {item.id_};
+                                String jsonStr = JsonEncode.getInstance().encodeCommandJson("kickClient", keys, values);
+                                //서버로 전송
+                                socketService_.sendMessage(jsonStr);
+                            }
+                        }).setNegativeButton("취소",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 'No'
+                                return;
+                            }
+                        });
+                AlertDialog alert = alert_confirm.create();
+                alert.show();
+            }
+        }
+    }
+
+    @Override
     public void doReceiveAction(String request){
         DebugHandler.log(getClass().getName() + " JSON", request);
         ArrayList<Object> arrayList = new ArrayList<Object>();
@@ -504,6 +539,10 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
 
             case "noticeExit": //방에 클라이언트 퇴장을 알리는 행동
                 receiveNoticeExit(requestObj);
+                break;
+
+            case "noticeKick": //방에 클라이언트 강제 퇴장을 알리는 행동
+                receiveNoticeKick(requestObj);
                 break;
 
             case "noticeChangeHost": //방에 방장 변경을 알리는 행동
@@ -762,7 +801,6 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
             e.printStackTrace();
         }
 
-        String nick = (String)map.get("nick");
         //방에서 나간 클라이언트 정보 비워주기
         gameClientListViewAdapter.removeItem((String)map.get("id"));
         gameClientListViewAdapter.notifyDataSetChanged();
@@ -771,6 +809,43 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
         GameChatListViewItem item = new GameChatListViewItem(msg, ALARM_COLOR);
         gameChatListViewAdapter.addItem(item);
         gameChatListViewAdapter.notifyDataSetChanged();
+    }
+
+    //받은 커맨드가 방에 클라이언트 강제 퇴장을 알리는 행동
+    private void receiveNoticeKick(Object jsonObj){
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        try {
+            JSONObject json = (JSONObject)jsonObj;
+            map.put("id", json.get("id")); //방에서 강제 퇴장 된 유저 아이디
+            map.put("nick", json.get("nick")); //방에서 강제 퇴장 된 유저 닉네임
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //방에서 나간 클라이언트 정보 비워주기
+        gameClientListViewAdapter.removeItem((String)map.get("id"));
+        gameClientListViewAdapter.notifyDataSetChanged();
+
+        String msg = "[알림]-[" + (String)map.get("nick") + "] : 님이 방에서 강제퇴장 되었습니다.";
+        GameChatListViewItem item = new GameChatListViewItem(msg, ALARM_COLOR);
+        gameChatListViewAdapter.addItem(item);
+        gameChatListViewAdapter.notifyDataSetChanged();
+
+        if(client_.account_.id_.equals((String)map.get("id"))){ //본인이 강제 퇴장 당한 경우 메인 엑티비티로 화면 이동
+            AlertDialog.Builder alert_confirm = new AlertDialog.Builder(GameRoomActivity.this);
+            alert_confirm.setMessage("방에서 강제퇴장 되었습니다.").setCancelable(false).setPositiveButton("확인",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(GameRoomActivity.this, MainActivity.class);
+                            intent.putExtra("fragId", 1);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+            AlertDialog alert = alert_confirm.create();
+            alert.show();
+        }
     }
 
     //받은 커맨드가 방에 클라이언트 입장을 알리는 행동
@@ -1061,7 +1136,8 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
         String jsonStr = JsonEncode.getInstance().encodeCommandJson("clientList", keys, values);
         DebugHandler.log(getClass().getName(), jsonStr);
         //서버로 전송
-        socketService_.sendMessage(jsonStr);
+        if (isLiveBinder)
+            socketService_.sendMessage(jsonStr);
 
         PaintListDialog paintListDialog = new PaintListDialog();
         paintListDialog.setDialogSize(getWindow().getWindowManager().getDefaultDisplay().getWidth()*3/4
@@ -1233,6 +1309,7 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private ProgressThread progressThread; //progress bar 스레드
+
     private class ProgressThread extends Thread{ //progress bar 스레드
         public int time = 1; //초
         Handler progressHandler_; //핸들러

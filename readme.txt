@@ -1,0 +1,1 @@
+CMake.txt -> 내 프로젝트, opencv-android-skd 경로 설정 해야됨

@@ -240,6 +240,11 @@ public class Client {
     public Context getContext() { return context_; }
 
     private void setContext(){
+        gameRoomListViewAdapter.setMyContext(null);
+        chatRoomListViewAdapter.setMyContext(null, null);
+        socialListViewAdapter.setMyContext(null, null);
+        recommendSocialListViewAdapter.setMyContext(null, null);
+
         gameRoomListViewAdapter.setMyContext(client_.context_);
         chatRoomListViewAdapter.setMyContext(client_.context_, Glide.with(client_.context_));
         socialListViewAdapter.setMyContext(client_.context_, Glide.with(client_.context_));

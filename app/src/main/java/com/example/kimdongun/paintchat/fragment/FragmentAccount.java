@@ -268,6 +268,27 @@ public class FragmentAccount extends Fragment implements View.OnClickListener{
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        //사용 한 객체 초기화
+        account_ = null; //계정 정보
+        imageView_back = null; //배경 사진
+        imageView_profile = null; //프로필 사진
+        textView_id = null; //아이디
+        textView_email = null; //이메일
+        textView_type = null; //계정 유형 ex)Google, Facebook, Local
+        editText_nick = null; //닉네임
+        button_nick = null; //닉네임 수정 버튼
+        switch_search = null; //검색 설정 스위치
+        textView_search = null; //검색 설정 텍스트
+        switch_push = null; //푸시 설정 스위치
+        textView_push = null; //푸시 설정 텍스트
+        imageView_profile_change = null; //프로필 변경 버튼
+        imagePickerDialog_ = null; //프로필 선택 다이얼로그
+    }
+
+    @Override
     public void onClick(View v) {
         AlertDialog.Builder alert_confirm = new AlertDialog.Builder(getActivity());
         switch (v.getId()){
@@ -461,7 +482,7 @@ public class FragmentAccount extends Fragment implements View.OnClickListener{
     private void makeAndUploadThumbnail(String imagePath, final String uploadFileName){
         Mat img_input = new Mat();
         //이미지 불러오기
-        loadImage(imagePath, img_input.getNativeObjAddr(), 200);
+        loadImage(imagePath, img_input.getNativeObjAddr(), 300);
         final String extStorageDirectory = getContext().getCacheDir().getAbsolutePath(); //저장 경로
         String saveFileName = "thumbnail.png"; //저장 할 이름 (저장 경로 포함)
         saveFileName.trim();

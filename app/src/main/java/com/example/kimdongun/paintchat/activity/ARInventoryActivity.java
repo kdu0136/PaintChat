@@ -40,6 +40,7 @@ import com.example.kimdongun.paintchat.Client;
 import com.example.kimdongun.paintchat.DebugHandler;
 import com.example.kimdongun.paintchat.HandlerMessageDecode;
 import com.example.kimdongun.paintchat.R;
+import com.example.kimdongun.paintchat.SQLiteHandler;
 import com.example.kimdongun.paintchat.SensorARInventory;
 import com.example.kimdongun.paintchat.item.ChatRoomListViewItem;
 import com.example.kimdongun.paintchat.item.MaskItem;
@@ -335,6 +336,39 @@ public class ARInventoryActivity extends AppCompatActivity implements View.OnCli
         if(isLiveBinder){ //서비스랑 바인드 된 경우
             unbindService(serviceConnection_);
         }
+
+        //사용 한 객체 초기화
+        sensorARInventory.maskManager.destroyManager();
+
+        sensorARInventory = null;
+        cameraPreview = null;
+        camera = null;
+        layout = null; //부모 레이아웃
+        imageView_myMask = null; //내 마스크 보기 버튼
+
+        layout_maskInfo = null; //마스크 정보 레이아웃
+        imageView_touchMask = null; //마스크 이미지
+        textView_maskName = null; //마스크 이름
+        textView_OldID = null; //마스크 원래 주인
+        textView_Memo = null; //마스크 메모 수정 불가
+        layout_memo = null; //수정 가능 메모 레아이웃
+        editText_Memo = null; //마스크 메모 수정 가능
+        button_ok = null; //수정 확인
+        textView_Date = null; //마스크 습득 날짜
+        button_throw = null; //마스크 버리기
+
+        imageView_map = null; //맵으로 돌아가기
+
+        latlng = null; //사용자 위치
+        locationManager = null; //위치 수신하기 위함
+        mLocationListener = null;
+
+        normalChatToast = null; //채팅 토스트 메세지
+        mDisplay = null; //디스플레이 정보
+
+        handler_ = null; //소켓 스레드랑 통신 할 핸들러
+        socketService_ = null; //소켓 서비스
+        serviceConnection_ = null; //서비스 커넥션
     }
 
     @Override
@@ -598,35 +632,33 @@ public class ARInventoryActivity extends AppCompatActivity implements View.OnCli
 
         ChatRoomListViewItem chatRoomListViewItem = client_.chatRoomListViewAdapter.getItem((String)map.get("roomKey"));
         if(chatRoomListViewItem == null){ //받은 메세지의 방 키값을 가진 방이 없는 경우 (채팅방 리스트에 해당 채팅 방 추가)
+            //SQLite에서 받은 채팅 메세지가 들어가야 되는 채팅 방 정보 가져옴
+            SQLiteHandler sqLiteHandler = new SQLiteHandler(this, "project_one", null, 1);
+            String[] chatRoomColumns = {"my_id", "room_key"};
+            Object[] chatRoomValues = {client_.account_.id_, map.get("roomKey")};
+            ArrayList<ArrayList<Object>> chatRoomArray = sqLiteHandler.select("chat_room", chatRoomColumns, chatRoomValues, "and");
+
             int user_num = (int)map.get("num"); //채팅방있는 유저 수
             user_num += 1; //본인 추가
 
-            String[] accountNickArray = ((String)map.get("name")).split(",");
+            String[] accountIdkArray = ((String)chatRoomArray.get(0).get(2)).split(",");//((String)map.get("name")).split(",");
+
             //방 리스트에 뜨는 친구 닉네임 설정 (방 제목에서 자신의 닉네임은 안 보이도록)
-            ArrayList<String> tempList = new ArrayList<>();
-            //닉네임 중 자신을 지우기
-            for(int i = 0; i < accountNickArray.length; i++) {
-                if(!accountNickArray[i].equals(client_.account_.nick_)) {
-                    DebugHandler.log(getClass().getName(),"accountNickArray: " + accountNickArray[i]);
-                    tempList.add(accountNickArray[i]);
-                }
-            }
-            //방 리스트에 뜨는 친구 닉네임 설정 (방 제목)
-            //프로필 사진 url가져오기
             String newRoomName = "";
+            //프로필 사진 url가져오기
             final ArrayList<String> profileList = new ArrayList<>();
-            for(int i = 0; i < tempList.size(); i++){
-                Account account = client_.socialListViewAdapter.getItemByNick(tempList.get(i));
+            for(int ii = 0; ii < accountIdkArray.length; ii++){
+                Account account = client_.socialListViewAdapter.getItemById(accountIdkArray[ii]);
                 if(account == null){
-                    account = client_.recommendSocialListViewAdapter.getItemByNick(tempList.get(i));
+                    account = client_.recommendSocialListViewAdapter.getItemById(accountIdkArray[ii]);
                 }
                 if(account == null){
-                    account = new Account("", "http://211.110.229.53/profile_image/default.png", null, tempList.get(i),
+                    account = new Account(accountIdkArray[ii], "http://211.110.229.53/profile_image/default.png", null, "???",
                             null, 1, 1, 1);
                 }
                 profileList.add(account.profileUrl_);
-                newRoomName += tempList.get(i);
-                if (i < tempList.size() - 1)
+                newRoomName += account.nick_;
+                if (ii < accountIdkArray.length - 1)
                     newRoomName += ",";
             }
 

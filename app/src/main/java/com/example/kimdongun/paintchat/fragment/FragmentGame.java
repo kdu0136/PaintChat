@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.kimdongun.paintchat.Client;
 import com.example.kimdongun.paintchat.DebugHandler;
@@ -26,7 +25,6 @@ import com.example.kimdongun.paintchat.item.GameRoomListViewItem;
  */
 
 public class FragmentGame extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener{
-    private TextView textView_noFind; //방 없다는 텍스트
     private ListView myListView_; //게임 방 리스트
     private GameRoomListViewAdapter adapter_; //게임 방 리스트 뷰 어댑터
     private Client client_; //클라이언트 정보
@@ -57,7 +55,6 @@ public class FragmentGame extends Fragment implements View.OnClickListener, Adap
         client_ = ((MainActivity)getContext()).client_;
         myListView_ = (ListView)view.findViewById(R.id.listView);
         adapter_ = client_.gameRoomListViewAdapter;
-        textView_noFind = (TextView)view.findViewById(R.id.textView_noFind);
 
         myListView_.setAdapter(adapter_);
         myListView_.setOnItemClickListener(this);

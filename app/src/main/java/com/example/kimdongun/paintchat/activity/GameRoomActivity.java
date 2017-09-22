@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,9 +34,11 @@ import com.example.kimdongun.paintchat.GameCanvas;
 import com.example.kimdongun.paintchat.HandlerMessageDecode;
 import com.example.kimdongun.paintchat.JsonEncode;
 import com.example.kimdongun.paintchat.R;
+import com.example.kimdongun.paintchat.SQLiteHandler;
 import com.example.kimdongun.paintchat.adapter.GameChatListViewAdapter;
 import com.example.kimdongun.paintchat.adapter.GameClientListViewAdapter;
 import com.example.kimdongun.paintchat.dialog.ColorPickerDialog;
+import com.example.kimdongun.paintchat.dialog.InviteGameDialog;
 import com.example.kimdongun.paintchat.dialog.PaintListDialog;
 import com.example.kimdongun.paintchat.item.ChatRoomListViewItem;
 import com.example.kimdongun.paintchat.item.GameChatListViewItem;
@@ -64,6 +67,8 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
     private String gameRoomKey_; //방 키값
     private String gameHostNick_; //방장 닉네임
     private String quizHostNick_; //문제 출제자 닉네임
+
+    private InviteGameDialog inviteGameDialog_; //게임 초대 다이얼 로그
 
     private ListView listView_nick; //입장 유저 목록 리스트뷰
     private ListView listView_chat; //유저 채팅 리스트뷰
@@ -317,8 +322,18 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
             case android.R.id.home: //홈 버튼 클릭
                 onBackPressed();
                 break;
+
+            case R.id.action_invite: //초대 버튼
+//                inviteGameDialog_ = new InviteGameDialog(this, client_);
+//                inviteGameDialog_.show();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_in_game, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -613,35 +628,33 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
 
         ChatRoomListViewItem chatRoomListViewItem = client_.chatRoomListViewAdapter.getItem((String)map.get("roomKey"));
         if(chatRoomListViewItem == null){ //받은 메세지의 방 키값을 가진 방이 없는 경우 (채팅방 리스트에 해당 채팅 방 추가)
+            //SQLite에서 받은 채팅 메세지가 들어가야 되는 채팅 방 정보 가져옴
+            SQLiteHandler sqLiteHandler = new SQLiteHandler(this, "project_one", null, 1);
+            String[] chatRoomColumns = {"my_id", "room_key"};
+            Object[] chatRoomValues = {client_.account_.id_, map.get("roomKey")};
+            ArrayList<ArrayList<Object>> chatRoomArray = sqLiteHandler.select("chat_room", chatRoomColumns, chatRoomValues, "and");
+
             int user_num = (int)map.get("num"); //채팅방있는 유저 수
             user_num += 1; //본인 추가
 
-            String[] accountNickArray = ((String)map.get("name")).split(",");
+            String[] accountIdkArray = ((String)chatRoomArray.get(0).get(2)).split(",");//((String)map.get("name")).split(",");
+
             //방 리스트에 뜨는 친구 닉네임 설정 (방 제목에서 자신의 닉네임은 안 보이도록)
-            ArrayList<String> tempList = new ArrayList<>();
-            //닉네임 중 자신을 지우기
-            for(int i = 0; i < accountNickArray.length; i++) {
-                if(!accountNickArray[i].equals(client_.account_.nick_)) {
-                    DebugHandler.log(getClass().getName(),"accountNickArray: " + accountNickArray[i]);
-                    tempList.add(accountNickArray[i]);
-                }
-            }
-            //방 리스트에 뜨는 친구 닉네임 설정 (방 제목)
-            //프로필 사진 url가져오기
             String newRoomName = "";
+            //프로필 사진 url가져오기
             final ArrayList<String> profileList = new ArrayList<>();
-            for(int i = 0; i < tempList.size(); i++){
-                Account account = client_.socialListViewAdapter.getItemByNick(tempList.get(i));
+            for(int ii = 0; ii < accountIdkArray.length; ii++){
+                Account account = client_.socialListViewAdapter.getItemById(accountIdkArray[ii]);
                 if(account == null){
-                    account = client_.recommendSocialListViewAdapter.getItemByNick(tempList.get(i));
+                    account = client_.recommendSocialListViewAdapter.getItemById(accountIdkArray[ii]);
                 }
                 if(account == null){
-                    account = new Account("", "http://211.110.229.53/profile_image/default.png", null, tempList.get(i),
+                    account = new Account(accountIdkArray[ii], "http://211.110.229.53/profile_image/default.png", null, "???",
                             null, 1, 1, 1);
                 }
                 profileList.add(account.profileUrl_);
-                newRoomName += tempList.get(i);
-                if (i < tempList.size() - 1)
+                newRoomName += account.nick_;
+                if (ii < accountIdkArray.length - 1)
                     newRoomName += ",";
             }
 

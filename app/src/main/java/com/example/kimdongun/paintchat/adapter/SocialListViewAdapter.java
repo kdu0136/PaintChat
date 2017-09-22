@@ -168,8 +168,8 @@ public class SocialListViewAdapter extends BaseAdapter {
         }
     }
 
-    public void setMyContext(Context contect, RequestManager requestManager){
-        this.myContext = contect;
+    public void setMyContext(Context context, RequestManager requestManager){
+        this.myContext = context;
         this.requestManager = requestManager;
     }
 }

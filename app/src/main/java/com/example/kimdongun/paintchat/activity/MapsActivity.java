@@ -35,6 +35,7 @@ import com.example.kimdongun.paintchat.DebugHandler;
 import com.example.kimdongun.paintchat.HandlerMessageDecode;
 import com.example.kimdongun.paintchat.Permission;
 import com.example.kimdongun.paintchat.R;
+import com.example.kimdongun.paintchat.SQLiteHandler;
 import com.example.kimdongun.paintchat.SensorARMap;
 import com.example.kimdongun.paintchat.item.ChatRoomListViewItem;
 import com.example.kimdongun.paintchat.item.ThrowMaskItem;
@@ -235,6 +236,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(isLiveBinder){ //서비스랑 바인드 된 경우
             unbindService(serviceConnection_);
         }
+
+        //사용 한 객체 초기화
+        imageView_location = null; //내 위치 버튼
+        imageView_inventory = null; //인벤토리 버튼
+
+        sensorARMap = null;
+
+        mMap = null;
+        latlng = null; //사용자 위치
+        clientMarker = null; //사용자 마커
+        clientCircle = null; //사용자 인식 범위
+
+        if(maskMarker != null)
+            maskMarker.clear(); //마스크 마커
+        maskMarker = null;
+
+        if(throwMaskItems != null)
+            throwMaskItems.clear();; //버려진 마스크 목록
+        throwMaskItems = null;
+
+        locationManager = null; //위치 수신하기 위함
+        mLocationListener = null;
+
+        normalChatToast = null; //채팅 토스트 메세지
     }
 
     @Override
@@ -249,7 +274,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
+     * If Google Play services is not installed on the device, the user  ll be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
@@ -367,12 +392,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         throwMaskItems.clear(); //버려진 마스크 목록
         mMap.clear(); //모든 마커 삭제
 
-        //초기 위치 (2사무실으로 해놨음)
+        //초기 위치
         if(latlng == null) {
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            DebugHandler.log("LastLocation", "lat: " + location.getLatitude() + "   lng: " + location.getLongitude());
-            latlng = new LatLng(location.getLatitude(), location.getLongitude());
-//            latlng = new LatLng(37.483852, 126.972194);
+            if(location != null) {
+                DebugHandler.log("LastLocation", "lat: " + location.getLatitude() + "   lng: " + location.getLongitude());
+                latlng = new LatLng(location.getLatitude(), location.getLongitude());
+            }else
+                latlng = new LatLng(37.483852, 126.972194); //(2사무실으로 해놨음)
         }
 
         clientMarker = mMap.addMarker(new MarkerOptions()
@@ -432,20 +459,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                             .icon(BitmapDescriptorFactory.fromBitmap(bmOverlay)));
                                     maskMarker.add(marker); //사용자 마커 추가
                                     maskMarker.get(maskMarker.size() - 1).setTag(maskMarker.size() - 1);
-
-//                                    if(latlng != null) { //현재 위치 파악 된 경우
-//                                        float[] result = new float[3];
-//                                        Location.distanceBetween(latlng.latitude, latlng.longitude,
-//                                                throwMaskItems.get(maskMarker.size() - 1).latLng.latitude,
-//                                                throwMaskItems.get(maskMarker.size() - 1).latLng.longitude, result);
-//                                        if (result[0] <= circleRadius) { //마스크가 범위 안에 있는 경우
-//                                            maskMarker.get(maskMarker.size() - 1).setVisible(true);
-//                                        } else { //마스크가 범위 밖에 있는 경우
-//                                            maskMarker.get(maskMarker.size() - 1).setVisible(false);
-//                                        }
-//                                    }else{ //현재 위치 파악 안 된 경우
-//                                        maskMarker.get(maskMarker.size() - 1).setVisible(false);
-//                                    }
                                 }
                             });
                         }
@@ -533,35 +546,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         ChatRoomListViewItem chatRoomListViewItem = client_.chatRoomListViewAdapter.getItem((String)map.get("roomKey"));
         if(chatRoomListViewItem == null){ //받은 메세지의 방 키값을 가진 방이 없는 경우 (채팅방 리스트에 해당 채팅 방 추가)
+            //SQLite에서 받은 채팅 메세지가 들어가야 되는 채팅 방 정보 가져옴
+            SQLiteHandler sqLiteHandler = new SQLiteHandler(this, "project_one", null, 1);
+            String[] chatRoomColumns = {"my_id", "room_key"};
+            Object[] chatRoomValues = {client_.account_.id_, map.get("roomKey")};
+            ArrayList<ArrayList<Object>> chatRoomArray = sqLiteHandler.select("chat_room", chatRoomColumns, chatRoomValues, "and");
+
             int user_num = (int)map.get("num"); //채팅방있는 유저 수
             user_num += 1; //본인 추가
 
-            String[] accountNickArray = ((String)map.get("name")).split(",");
+            String[] accountIdkArray = ((String)chatRoomArray.get(0).get(2)).split(",");//((String)map.get("name")).split(",");
+
             //방 리스트에 뜨는 친구 닉네임 설정 (방 제목에서 자신의 닉네임은 안 보이도록)
-            ArrayList<String> tempList = new ArrayList<>();
-            //닉네임 중 자신을 지우기
-            for(int i = 0; i < accountNickArray.length; i++) {
-                if(!accountNickArray[i].equals(client_.account_.nick_)) {
-                    DebugHandler.log(getClass().getName(),"accountNickArray: " + accountNickArray[i]);
-                    tempList.add(accountNickArray[i]);
-                }
-            }
-            //방 리스트에 뜨는 친구 닉네임 설정 (방 제목)
-            //프로필 사진 url가져오기
             String newRoomName = "";
+            //프로필 사진 url가져오기
             final ArrayList<String> profileList = new ArrayList<>();
-            for(int i = 0; i < tempList.size(); i++){
-                Account account = client_.socialListViewAdapter.getItemByNick(tempList.get(i));
+            for(int ii = 0; ii < accountIdkArray.length; ii++){
+                Account account = client_.socialListViewAdapter.getItemById(accountIdkArray[ii]);
                 if(account == null){
-                    account = client_.recommendSocialListViewAdapter.getItemByNick(tempList.get(i));
+                    account = client_.recommendSocialListViewAdapter.getItemById(accountIdkArray[ii]);
                 }
                 if(account == null){
-                    account = new Account("", "http://211.110.229.53/profile_image/default.png", null, tempList.get(i),
+                    account = new Account(accountIdkArray[ii], "http://211.110.229.53/profile_image/default.png", null, "???",
                             null, 1, 1, 1);
                 }
                 profileList.add(account.profileUrl_);
-                newRoomName += tempList.get(i);
-                if (i < tempList.size() - 1)
+                newRoomName += account.nick_;
+                if (ii < accountIdkArray.length - 1)
                     newRoomName += ",";
             }
 

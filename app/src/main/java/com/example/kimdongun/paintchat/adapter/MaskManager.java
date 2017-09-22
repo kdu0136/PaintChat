@@ -23,9 +23,21 @@ public class MaskManager {
     public boolean myMaskVisible; //내 마스크 목록 보일지 말지
     public boolean myMaskTouched; //마스크 터치 유무
     public HashMap<Integer, MaskItem> maskList_ = new HashMap<>(); //마스크 리스트 (방위각(위치) 저장)
+    private boolean maskThreadX_ = false; //마스크 X좌표 변경 쓰레드 활성화 유무
+    private boolean maskThreadY_ = false; //마스크 Y좌표 변경 쓰레드 활성화 유무
 
     public MaskManager(boolean myMaskVisible){
         this.myMaskVisible = myMaskVisible;
+    }
+
+    //마스크 매니저 삭제 (사용했던 객채 null 작업)
+    public void destroyManager(){
+        Iterator iterator = maskList_.keySet().iterator();
+        while (iterator.hasNext()) {
+            int id = (int) iterator.next();
+            MaskItem mask = maskList_.get(id);
+            mask.deleteMask();
+        }
     }
 
     public void putMask(int id, MaskItem mask){
@@ -145,57 +157,65 @@ public class MaskManager {
 
     public void moveMaskX(final int centerX, final float azimuth, final float cameraVerticalAngle){
         synchronized (this) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Iterator iterator = maskList_.keySet().iterator();
-                    while (iterator.hasNext()) {
-                        int id = (int) iterator.next();
-                        MaskItem mask = maskList_.get(id);
-                        double roundAzimuth = Math.round(azimuth);
-                        roundAzimuth = roundAzimuth - mask.azimuth; //각도 차이 구함
-                        roundAzimuth = Math.toRadians(roundAzimuth); //좌우 회전 각 (소수점 다 날려버림) -> Radian 값으로
-                        try {
-                            double increaseWidth = (Math.sin(roundAzimuth) / Math.sin(Math.toRadians(cameraVerticalAngle))) * centerX * 1.5f;
-                            increaseWidth = Math.round(increaseWidth);
-                            double newWidth = centerX - increaseWidth;
-                            Message msg = handlerX.obtainMessage();
-                            msg.arg1 = id;
-                            msg.obj = String.valueOf(newWidth);
-                            handlerX.sendMessage(msg); //핸들러로 메세지 전송
-                        } catch (Exception e) {
+            if(!maskThreadX_) { //마스크 X변경 쓰레드가 활성화 아닐 경우 실행
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        maskThreadX_ = true;
+                        Iterator iterator = maskList_.keySet().iterator();
+                        while (iterator.hasNext()) {
+                            int id = (int) iterator.next();
+                            MaskItem mask = maskList_.get(id);
+                            double roundAzimuth = Math.round(azimuth);
+                            roundAzimuth = roundAzimuth - mask.azimuth; //각도 차이 구함
+                            roundAzimuth = Math.toRadians(roundAzimuth); //좌우 회전 각 (소수점 다 날려버림) -> Radian 값으로
+                            try {
+                                double increaseWidth = (Math.sin(roundAzimuth) / Math.sin(Math.toRadians(cameraVerticalAngle))) * centerX * 1.5f;
+                                increaseWidth = Math.round(increaseWidth);
+                                double newWidth = centerX - increaseWidth;
+                                Message msg = handlerX.obtainMessage();
+                                msg.arg1 = id;
+                                msg.obj = String.valueOf(newWidth);
+                                handlerX.sendMessage(msg); //핸들러로 메세지 전송
+                            } catch (Exception e) {
 
+                            }
                         }
+                        maskThreadX_ = false;
                     }
-                }
-            }).start();
+                }).start();
+            }
         }
     }
 
     public void moveMaskY(final int centerY, final double roll, final float cameraHorizontalAngle) {
         synchronized (this) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Iterator iterator = maskList_.keySet().iterator();
-                    while (iterator.hasNext()) {
-                        int id = (int) iterator.next();
-                        MaskItem mask = maskList_.get(id);
-                        double roundRoll = Math.round(roll); //y축으로 회전 각 (소수점 다 날려버림) -> Radian 값으로
-                        roundRoll = Math.toRadians(roundRoll);
-                        try {
-                            double increaseHeight = (Math.cos(roundRoll) / Math.cos(Math.toRadians(cameraHorizontalAngle))) * centerY;
-                            double newHeight = centerY - increaseHeight;
+            if(!maskThreadY_) { //마스크 Y변경 쓰레드가 활성화 아닐 경우 실행
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        maskThreadY_ = true;
+                        Iterator iterator = maskList_.keySet().iterator();
+                        while (iterator.hasNext()) {
+                            int id = (int) iterator.next();
+                            MaskItem mask = maskList_.get(id);
+                            double roundRoll = Math.round(roll); //y축으로 회전 각 (소수점 다 날려버림) -> Radian 값으로
+                            roundRoll = Math.toRadians(roundRoll);
+                            try {
+                                double increaseHeight = (Math.cos(roundRoll) / Math.cos(Math.toRadians(cameraHorizontalAngle))) * centerY;
+                                double newHeight = centerY - increaseHeight;
 
-                            Message msg = handlerY.obtainMessage();
-                            msg.arg1 = id;
-                            msg.obj = String.valueOf(newHeight);
-                            handlerY.sendMessage(msg); //핸들러로 메세지 전송catch
-                        } catch (Exception e) {
+                                Message msg = handlerY.obtainMessage();
+                                msg.arg1 = id;
+                                msg.obj = String.valueOf(newHeight);
+                                handlerY.sendMessage(msg); //핸들러로 메세지 전송catch
+                            } catch (Exception e) {
+                            }
                         }
+                        maskThreadY_ = false;
                     }
-                }
-            }).start();
+                }).start();
+            }
         }
     }
 

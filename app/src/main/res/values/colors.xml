@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>-->
     <color name="colorPrimary">#90D5D2</color>
     <color name="colorPrimaryDark">#89B3B2</color>
     <color name="colorAccent">#F79087</color>
@@ -13,4 +10,7 @@
     <color name="colorYellow">#FFFFFF00</color>
     <color name="colorBrightBlueAlpha">#12037af3</color>
     <color name="colorAlphaZero">#00FFFFFF</color>
+
+    <color name="colorGoogleLogin">#FFCB3831</color>
+    <color name="colorFacebookLogin">#FF3A5A97</color>
 </resources>

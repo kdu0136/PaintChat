@@ -24,4 +24,12 @@ public class MaskItem {
         this.azimuth = 0;
         this.floor = 0;
     }
+
+    public void deleteMask(){
+        this.maskName = null;
+        this.maskOldID = null;
+        this.maskMemo = null;
+        this.maskDate = null;
+        this.imageView = null;
+    }
 }

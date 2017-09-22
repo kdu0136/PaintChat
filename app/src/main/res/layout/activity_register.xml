@@ -15,6 +15,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerInParent="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:textSize="50sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:text="회원가입"/>
         <View
             android:layout_height="3dip"
             android:layout_width="match_parent"

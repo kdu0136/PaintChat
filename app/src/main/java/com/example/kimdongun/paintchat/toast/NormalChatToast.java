@@ -1,7 +1,6 @@
 package com.example.kimdongun.paintchat.toast;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,7 +26,7 @@ public class NormalChatToast extends Toast {
         this.context_ = context;
     }
 
-    public void showToast(String profile, String nick, String msg){
+    public void showToast(String profile, String nick, String msg, String type){
         View view = View.inflate(context_, R.layout.toast_normal_chat, null);
 
         ImageView imageView_profile = (ImageView)view.findViewById(R.id.imageView_profile);
@@ -43,14 +42,24 @@ public class NormalChatToast extends Toast {
 
         textView_nick.setText(nick);
 
-        Uri uri = Uri.parse(msg);
-        if (uri.getScheme() == null || uri.getScheme().isEmpty()) {
-            // safe text
+        if(type.equals("chat")){ //채팅 메세지 일 경우
             textView_msg.setText(msg);
-        } else {
-            // has url
-            textView_msg.setText("파일");
+        }else if(type.equals("image")){ //이미지 파일 일 경우
+            textView_msg.setText("사진");
+        }else if(type.equals("video")){ //비디오 파일 일 경우
+            textView_msg.setText("동영상");
+        }else if(type.equals("invite")){ //게임 초대 일 경우
+            textView_msg.setText("초대 메세지");
         }
+
+//        Uri uri = Uri.parse(msg);
+//        if (uri.getScheme() == null || uri.getScheme().isEmpty()) {
+//            // safe text
+//            textView_msg.setText(msg);
+//        } else {
+//            // has url
+//            textView_msg.setText("파일");
+//        }
 
         if(toast_ != null)
             toast_.cancel();

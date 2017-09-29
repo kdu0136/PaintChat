@@ -389,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             map.put("date", json.get("date")); //채팅 메세지 보낸 시간
             map.put("num", json.get("num")); //채팅 메세지 읽음 수
             map.put("name", json.get("name")); //채팅 방 이름
+            map.put("type", json.get("type")); //타입  ex)chat / image / video / invite
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -439,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             client_.chatRoomListViewAdapter.removeItem(chatRoomListViewItem.roomKey_);
         }
         //새로 방 생성
+        chatRoomListViewItem.type_ = (String)map.get("type");
         client_.chatRoomListViewAdapter.addTopItem(chatRoomListViewItem);
         client_.chatRoomListViewAdapter.notifyDataSetChanged();
 
@@ -451,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     null, 1, 1, 1);
         }
 
-        normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"));
+        normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"), (String)map.get("type"));
     }
 
     @Override
@@ -577,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             boolean isStart = (Boolean)json.get("isStart"); //방 상태
 
             GameRoomListViewItem gameRoom = new GameRoomListViewItem(key, name, isLock, num, maxNum, isStart);
-            client_.gameRoomListViewAdapter.addItem(gameRoom);
+            client_.gameRoomListViewAdapter.addTopItem(gameRoom);
             client_.gameRoomListViewAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
             e.printStackTrace();

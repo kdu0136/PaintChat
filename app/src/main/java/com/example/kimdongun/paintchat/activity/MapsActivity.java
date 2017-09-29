@@ -193,10 +193,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     100, // 통지사이의 최소 시간간격 (miliSecond)
                     1, // 통지사이의 최소 변경거리 (m)
                     mLocationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
-                    100, // 통지사이의 최소 시간간격 (miliSecond)
-                    1, // 통지사이의 최소 변경거리 (m)
-                    mLocationListener);
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
+//                    100, // 통지사이의 최소 시간간격 (miliSecond)
+//                    1, // 통지사이의 최소 변경거리 (m)
+//                    mLocationListener);
         }
         normalChatToast = new NormalChatToast(this); //채팅 토스트 메세지
 
@@ -536,6 +536,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             map.put("date", json.get("date")); //채팅 메세지 보낸 시간
             map.put("num", json.get("num")); //채팅 메세지 읽음 수
             map.put("name", json.get("name")); //채팅 방 이름
+            map.put("type", json.get("type")); //타입  ex)chat / image / video / invite
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -586,6 +587,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             chatRoomListViewItem.time_ = strTime;
             client_.chatRoomListViewAdapter.removeItem(chatRoomListViewItem.roomKey_);
         }
+        chatRoomListViewItem.type_ = (String)map.get("type");
         client_.chatRoomListViewAdapter.addTopItem(chatRoomListViewItem);
         client_.chatRoomListViewAdapter.notifyDataSetChanged();
 
@@ -598,7 +600,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     null, 1, 1, 1);
         }
 
-        normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"));
+        normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"), (String)map.get("type"));
     }
 
     @Override

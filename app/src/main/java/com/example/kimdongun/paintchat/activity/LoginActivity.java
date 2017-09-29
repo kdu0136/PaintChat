@@ -379,6 +379,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             map.put("date", json.get("date")); //채팅 메세지 보낸 시간
             map.put("num", json.get("num")); //채팅 메세지 읽음 수
             map.put("name", json.get("name")); //채팅 방 이름
+            map.put("type", json.get("type")); //타입  ex)chat / image / video / invite
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -429,6 +430,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             chatRoomListViewItem.time_ = strTime;
             client_.chatRoomListViewAdapter.removeItem(chatRoomListViewItem.roomKey_);
         }
+        chatRoomListViewItem.type_ = (String)map.get("type");
         client_.chatRoomListViewAdapter.addTopItem(chatRoomListViewItem);
         client_.chatRoomListViewAdapter.notifyDataSetChanged();
     }

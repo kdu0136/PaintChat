@@ -29,6 +29,7 @@ public class NormalChatListViewAdapter extends BaseAdapter {
     private Context myContext = null;
     private LayoutInflater myInflater;
     private RequestManager requestManager;
+    private String inviteStr = "당신을 게임방에 초대합니다.\n어서와서 제가 그리는 그림을 맞춰보세요!!\n(채팅 메세지를 터치하면 방으로 이동합니다.)";
 
     public NormalChatListViewAdapter(Context myContext, RequestManager requestManager){
         super();
@@ -125,6 +126,12 @@ public class NormalChatListViewAdapter extends BaseAdapter {
                 imageView_video.setVisibility(View.GONE);
                 //채팅 메세지
                 viewHolder.getMsg().setText(item.msg_);
+            }else if(item.type_.equals("invite")){  //게임 초대 일 경우
+                textView_msg.setVisibility(View.VISIBLE);
+                imageView_file.setVisibility(View.GONE);
+                imageView_video.setVisibility(View.GONE);
+                //초대 메세지
+                viewHolder.getMsg().setText(inviteStr);
             }else { //파일 일 경우
                 textView_msg.setVisibility(View.GONE);
                 imageView_file.setVisibility(View.VISIBLE);
@@ -161,7 +168,14 @@ public class NormalChatListViewAdapter extends BaseAdapter {
 
                 //채팅 메세지
                 viewHolder.getMsg2().setText(item.msg_);
-            }else{ //파일 일 경우
+            }else if(item.type_.equals("invite")){  //게임 초대 일 경우
+                textView_msg2.setVisibility(View.VISIBLE);
+                imageView_file2.setVisibility(View.GONE);
+                imageView_video2.setVisibility(View.GONE);
+
+                //초대 메세지
+                viewHolder.getMsg2().setText(inviteStr);
+            }else { //파일 일 경우
                 textView_msg2.setVisibility(View.GONE);
                 imageView_file2.setVisibility(View.VISIBLE);
                 if(item.type_.equals("image")){ //이미지 파일 일 경우

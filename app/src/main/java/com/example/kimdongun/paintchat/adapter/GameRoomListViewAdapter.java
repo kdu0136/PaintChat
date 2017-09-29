@@ -99,6 +99,15 @@ public class GameRoomListViewAdapter extends BaseAdapter {
     }
 
     /**********************************
+     * addTopItem(GameRoomListViewItem item) - 리스트에 해당 아이템을 추가
+     * item - 추가 할 아이템
+     **********************************/
+    public void addTopItem(GameRoomListViewItem item){
+        //GameRoomListViewItem item_ = new GameRoomListViewItem(item.no_, item.name_, item.isLock_, item.num_, item.maxNum_, item.isStart_);
+        myListItem.add(0, item);
+    }
+
+    /**********************************
      * getItem(GameRoomListViewItem item) - 리스트에 해당 아이템을 가져옴
      * item - 가져 올 아이템
      **********************************/

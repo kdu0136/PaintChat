@@ -324,8 +324,8 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.action_invite: //초대 버튼
-//                inviteGameDialog_ = new InviteGameDialog(this, client_);
-//                inviteGameDialog_.show();
+                inviteGameDialog_ = new InviteGameDialog(this, client_, gameRoomKey_);
+                inviteGameDialog_.show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -618,6 +618,7 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
             map.put("date", json.get("date")); //채팅 메세지 보낸 시간
             map.put("num", json.get("num")); //채팅 메세지 읽음 수
             map.put("name", json.get("name")); //채팅 방 이름
+            map.put("type", json.get("type")); //타입  ex)chat / image / video / invite
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -667,6 +668,10 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
             chatRoomListViewItem.time_ = strTime;
             client_.chatRoomListViewAdapter.removeItem(chatRoomListViewItem.roomKey_);
         }
+        chatRoomListViewItem.type_ = (String)map.get("type");
+        if(client_.account_.id_.equals((String)map.get("id"))) //자신이 보낸 초대 메세지는 채팅방에 메세지 수 증가 안함
+            chatRoomListViewItem.msgNum_ -= 1;
+
         client_.chatRoomListViewAdapter.addTopItem(chatRoomListViewItem);
         client_.chatRoomListViewAdapter.notifyDataSetChanged();
 
@@ -679,7 +684,8 @@ public class GameRoomActivity extends AppCompatActivity implements View.OnClickL
                     null, 1, 1, 1);
         }
 
-        normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"));
+        if(!client_.account_.id_.equals(account.id_)) //자신이 보낸 초대 메세지는 안띄우기 위함
+            normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"), (String)map.get("type"));
 }
 
     @Override

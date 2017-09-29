@@ -449,6 +449,10 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             case "exitServerResult": //서버 접속 종료 행동
                 receiveExitServerResult();
                 break;
+
+            case "enterInviteGameRoomResult": //초대방 입장 요청 후 결과
+                receiveEnterInviteGameRoom(requestObj);
+                break;
         }
     }
 
@@ -464,7 +468,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             map.put("date", json.get("date")); //채팅 메세지 보낸 시간
             map.put("num", json.get("num")); //채팅 메세지 읽음 수
             map.put("name", json.get("name")); //채팅 방 이름
-            map.put("type", json.get("type")); //타입  ex)chat / file
+            map.put("type", json.get("type")); //타입  ex)chat / image / video / invite
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -517,6 +521,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             chatRoomListViewItem.time_ = strTime;
             client_.chatRoomListViewAdapter.removeItem(chatRoomListViewItem.roomKey_);
         }
+        chatRoomListViewItem.type_ = (String)map.get("type");
         client_.chatRoomListViewAdapter.addTopItem(chatRoomListViewItem);
         client_.chatRoomListViewAdapter.notifyDataSetChanged();
 
@@ -530,7 +535,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                         null, 1, 1, 1);
             }
 
-            normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"));
+            normalChatToast.showToast(account.profileUrl_, account.nick_, (String)map.get("msg"), (String)map.get("type"));
 
             return;
         }
@@ -586,6 +591,51 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
     public void receiveExitServerResult() {
     }
 
+
+    //게임 방 입장 요청 후  행동
+    private void receiveEnterInviteGameRoom(Object jsonObj){
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        try {
+            JSONObject json = (JSONObject)jsonObj;
+            map.put("result",json.get("result")); //결과
+            map.put("maxNum",json.get("maxNum")); //방 최대 인원
+            map.put("name", json.get("name")); //방 이름
+            map.put("key", json.get("key")); //방 키값
+            map.put("host", json.get("host")); //방장 닉네임
+            map.put("isGameStart", json.get("isGameStart")); //방 상태
+            map.put("quizHost", json.get("quizHost")); //문제 출제자 닉네임
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String result = (String)map.get("result");
+        switch(result){
+            case "success": //게임 방 입장 성공
+                Intent intent = new Intent(ChatRoomActivity.this, GameRoomActivity.class);
+                intent.putExtra("drawable", !(boolean)map.get("isGameStart"));
+                intent.putExtra("maxNum", (int)map.get("maxNum"));
+                intent.putExtra("name", (String)map.get("name"));
+                intent.putExtra("key", (String)map.get("key"));
+                intent.putExtra("host", (String)map.get("host"));
+                intent.putExtra("isGameStart", (boolean)map.get("isGameStart"));
+                intent.putExtra("quizHost", (String)map.get("quizHost"));
+                startActivity(intent);
+                finish();
+                break;
+
+            case "wrongKey": //존재하지 않는 게임 방 입장
+                Toast.makeText(ChatRoomActivity.this, "존재하지 않는 게임 방 입니다.", Toast.LENGTH_SHORT).show();
+                break;
+
+            case "fullRoom": //가득 찬 게임 방 입장
+                Toast.makeText(ChatRoomActivity.this, "인원이 가득 찬 게임 방 입니다.", Toast.LENGTH_SHORT).show();
+                break;
+
+            case "fail": //게임 방 입장 중 오류
+                Toast.makeText(ChatRoomActivity.this, "게임 방 입장에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int index, long id) {
         NormalChatListViewItem item = (NormalChatListViewItem)adapter.getItem(index);
@@ -598,7 +648,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             Intent intent0 = new Intent(this, VideoFullActivity.class);
             intent0.putExtra("url", item.msg_);
             startActivity(intent0);
-        }else{ //메세지면 프로필 화면으로
+        }else if(item.type_.equals("chat")){ //메세지면 프로필 화면으로
             if(item.myMsg_) //자신의 메세지 터치하면 아무일도 일어나지 않음
                 return;
             Intent intent = new Intent(this, ProfileActivity.class);
@@ -606,6 +656,16 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             intent.putExtra("type", "social");
             intent.putExtra("from", "chat");
             startActivity(intent);
+        }else if(item.type_.equals("invite")) { //초대 메세지면 게임 방으로
+            String[] keys = {"key", "password"};
+            Object[] values = {item.msg_, "password"};
+
+            String jsonStr = JsonEncode.getInstance().encodeCommandJson("enterInviteGameRoom", keys, values);
+            DebugHandler.log(getClass().getName(), jsonStr);
+
+            //서버로 전송
+            if (isLiveBinder)
+                socketService_.sendMessage(jsonStr);
         }
     }
 }

@@ -186,10 +186,12 @@ public class Client {
             long msg_num = 0; //채팅방에 보일 읽지 않은 메세지 수
             String msg = ""; //채팅방에 보일 메세지
             long now = 0; //채팅방에 보일 시간
+            String type = ""; //채팅방에 보일 메세지 타입
             if(roomListArray != null){
                 msg_num = (long)roomListArray.get(0); //채팅방에 보일 읽지 않은 메세지 수
                 msg = (String)roomListArray.get(1); //채팅방에 보일 메세지
                 now = Long.valueOf((String)roomListArray.get(2)); //채팅방에 보일 시간
+                type = (String)roomListArray.get(3); //채팅방에 보일 메세지
             }
             Date date = new Date(now);
             SimpleDateFormat sdfTime = new SimpleDateFormat("aa hh:mm");
@@ -216,6 +218,7 @@ public class Client {
 
             ChatRoomListViewItem chatRoomListViewItem = new ChatRoomListViewItem(roomKey, profileList, newRoomName, (int)user_num,
                     msg, strTime, (int)msg_num);
+            chatRoomListViewItem.type_ = type;
             chatRoomListViewItem.timeLong_ = now;
 
             chatRoomList.add(chatRoomListViewItem); //채팅 방 저장

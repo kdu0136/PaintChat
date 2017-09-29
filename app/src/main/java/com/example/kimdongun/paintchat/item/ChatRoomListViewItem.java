@@ -17,6 +17,7 @@ public class ChatRoomListViewItem implements Serializable {
     public String time_; //채팅 시간
     public int msgNum_; //채팅 읽은 숫자
     public long timeLong_; //채팅 시간
+    public String type_; //메세지 타입
 
     public ChatRoomListViewItem(String roomKey, ArrayList<String> accountProfileUrl, String accountNick, int userNum,
                                 String msg, String time, int msgNum){
@@ -27,5 +28,6 @@ public class ChatRoomListViewItem implements Serializable {
         this.msg_ = msg;
         this.time_ = time;
         this.msgNum_ = msgNum;
+        this.type_ = "chat";
     }
 }

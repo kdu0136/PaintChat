@@ -2,7 +2,6 @@ package com.example.kimdongun.paintchat.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,14 +100,23 @@ public class ChatRoomListViewAdapter extends BaseAdapter {
             viewHolder.getUserNum().setVisibility(View.INVISIBLE);
         }
         //채팅 메세지
-        Uri uri = Uri.parse(item.msg_);
-        if (uri.getScheme() == null || uri.getScheme().isEmpty()) {
-            // safe text
+        if(item.type_.equals("chat")){ //채팅 메세지 일 경우
             viewHolder.getMsg().setText(item.msg_);
-        } else {
-            // has url
-            viewHolder.getMsg().setText("파일");
+        }else if(item.type_.equals("image")){ //이미지 파일 일 경우
+            viewHolder.getMsg().setText("사진");
+        }else if(item.type_.equals("video")){ //비디오 파일 일 경우
+            viewHolder.getMsg().setText("동영상");
+        }else if(item.type_.equals("invite")){ //게임 초대 일 경우
+            viewHolder.getMsg().setText("초대 메세지");
         }
+//        Uri uri = Uri.parse(item.msg_);
+//        if (uri.getScheme() == null || uri.getScheme().isEmpty()) {
+//            // safe text
+//            viewHolder.getMsg().setText(item.msg_);
+//        } else {
+//            // has url
+//            viewHolder.getMsg().setText("파일");
+//        }
         //채팅 시간
         viewHolder.getDate().setText(item.time_);
         //읽지 않은 메세지 숫자

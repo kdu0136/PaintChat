@@ -36,14 +36,17 @@ public class InviteGameDialog extends Dialog implements View.OnClickListener, Ad
     private InviteChatListViewAdapter adapter; //초대 목록 리스트뷰 어댑터
     private Button button_invite; //초대 버튼
 
+    private String gameRoomKey_; //방 키값
+
     /**********************************
      * AddSocialDialog(Context context, Client client) - 각 변수들을 초기화
      * client - 친구 검색하는 유저의 정보
      **********************************/
-    public InviteGameDialog(Context context, Client client) {
+    public InviteGameDialog(Context context, Client client, String roomKey) {
         super(context);
         this.context_ = context;
         this.client_ = client;
+        this.gameRoomKey_ = roomKey;
     }
 
     @Override
@@ -115,7 +118,7 @@ public class InviteGameDialog extends Dialog implements View.OnClickListener, Ad
 
             //정보를 json으로 변환
             String[] keys = {"roomKey", "id", "nick", "msg", "type"};
-            Object[] values = {roomKey, client_.account_.id_, client_.account_.nick_, "게임방에 초대합니다", "chat"};
+            Object[] values = {roomKey, client_.account_.id_, client_.account_.nick_, gameRoomKey_, "invite"};
             String jsonStr = JsonEncode.getInstance().encodeCommandJson("normalChat", keys, values);
             //서버로 전송
             if(((GameRoomActivity)context_).isLiveBinder)

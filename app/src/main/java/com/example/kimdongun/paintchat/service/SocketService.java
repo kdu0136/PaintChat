@@ -446,7 +446,7 @@ public class SocketService extends Service implements HandlerMessageDecode, Sock
             map.put("date", json.get("date")); //채팅 메세지 보낸 시간
             map.put("num", json.get("num")); //채팅 메세지 읽음 수
             map.put("name", json.get("name")); //방 이름
-            map.put("type", json.get("type")); //타입  ex)chat / file
+            map.put("type", json.get("type")); //타입  ex)chat / image / video / invite
 
             //SQLite에 받은 채팅 메세지 저장
             SQLiteHandler sqLiteHandler = new SQLiteHandler(SocketService.this, "project_one", null, 1);

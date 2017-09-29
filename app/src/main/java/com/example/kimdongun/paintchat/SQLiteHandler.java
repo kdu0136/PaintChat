@@ -28,7 +28,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         //새로운 테이블 생성
         //로그인 한 계정 정보를 담고 있을 테이블
         db.execSQL("CREATE TABLE account_info (id TEXT, profile TEXT, email TEXT, nick TEXT, type TEXT, confirm INTEGER, search INTEGER, push INTEGER);");
-        //계정의 채팅 메세지를 담고 있을 테이블 (본인 id, 채팅방 key, 보낸사람 id, nick, 메세지 내용, 날짜, 읽은 사람 수, 읽은 채팅인지 여부)
+        //계정의 채팅 메세지를 담고 있을 테이블 (본인 id, 채팅방 key, 보낸사람 id, 메세지 내용, 날짜, 읽은 사람 수, 읽은 채팅인지 여부, 메세지 유형)
         db.execSQL("CREATE TABLE chat_message (my_id INTEGER, room_key TEXT, id TEXT, msg TEXT, date INTEGER, read_num INTEGER, is_read INTEGER, type TEXT);");
         //계정의 채팅 방을 담고 있을 테이블 (본인 id, 채팅방 key, 방 이름, 사람 수)
         db.execSQL("CREATE TABLE chat_room (my_id TEXT, room_key TEXT, name TEXT, user_num INTEGER);");
@@ -257,6 +257,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
             returnArray.add(numMsg); //메세지 갯수
             returnArray.add(selectData.get(selectData.size() - 1).get(3)); //마지막 메세지
             returnArray.add(selectData.get(selectData.size() - 1).get(4)); //마지막 시간
+            returnArray.add(selectData.get(selectData.size() - 1).get(7)); //마지막 메세지 유형
 
             DebugHandler.log(getClass().getName(), "Num None Read Message: " + numMsg);
             DebugHandler.log(getClass().getName(), "Last Message: " + selectData.get(selectData.size() - 1).get(3));

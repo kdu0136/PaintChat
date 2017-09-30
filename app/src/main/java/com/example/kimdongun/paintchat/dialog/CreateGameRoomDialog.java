@@ -67,7 +67,7 @@ public class CreateGameRoomDialog extends Dialog implements View.OnClickListener
         spinner_num = (Spinner)findViewById(R.id.spinner_num);
         button_create = (Button)findViewById(R.id.button_create);
 
-        editText_name.setHint(client_.account_.nick_ + "의 게임 방입니다.");
+        editText_name.setHint(client_.account_.nick_ + "의 게임방 입니다.");
         //비밀방 체크 이벤트
         checkBox_lock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

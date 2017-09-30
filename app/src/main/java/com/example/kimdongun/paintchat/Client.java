@@ -94,10 +94,10 @@ public class Client {
         });
 
         //각 어탭터 초기화
-        gameRoomListViewAdapter = new GameRoomListViewAdapter(this.context_);
-        chatRoomListViewAdapter = new ChatRoomListViewAdapter(this.context_, Glide.with(this.context_));
-        socialListViewAdapter = new SocialListViewAdapter(this.context_, Glide.with(this.context_));
-        recommendSocialListViewAdapter = new SocialListViewAdapter(this.context_, Glide.with(this.context_));
+        gameRoomListViewAdapter.removeAll();//new GameRoomListViewAdapter(this.context_);
+        chatRoomListViewAdapter.removeAll();//new ChatRoomListViewAdapter(this.context_, Glide.with(this.context_));
+        socialListViewAdapter.removeAll();//new SocialListViewAdapter(this.context_, Glide.with(this.context_));
+        recommendSocialListViewAdapter.removeAll();//new SocialListViewAdapter(this.context_, Glide.with(this.context_));
     }
 
     /**********************************

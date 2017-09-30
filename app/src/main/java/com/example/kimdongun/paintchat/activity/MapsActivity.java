@@ -193,10 +193,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     100, // 통지사이의 최소 시간간격 (miliSecond)
                     1, // 통지사이의 최소 변경거리 (m)
                     mLocationListener);
-//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
-//                    100, // 통지사이의 최소 시간간격 (miliSecond)
-//                    1, // 통지사이의 최소 변경거리 (m)
-//                    mLocationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, // 등록할 위치제공자
+                    100, // 통지사이의 최소 시간간격 (miliSecond)
+                    1, // 통지사이의 최소 변경거리 (m)
+                    mLocationListener);
         }
         normalChatToast = new NormalChatToast(this); //채팅 토스트 메세지
 
@@ -399,7 +399,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 DebugHandler.log("LastLocation", "lat: " + location.getLatitude() + "   lng: " + location.getLongitude());
                 latlng = new LatLng(location.getLatitude(), location.getLongitude());
             }else
-                latlng = new LatLng(37.483852, 126.972194); //(2사무실으로 해놨음)
+                latlng = new LatLng(35.635632, 129.350235); //(2사무실 37.483852, 126.972194으로 해놨음)
         }
 
         clientMarker = mMap.addMarker(new MarkerOptions()

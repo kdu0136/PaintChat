@@ -429,7 +429,7 @@ public class FragmentAccount extends Fragment implements View.OnClickListener{
                                 }
 
                                 //메인 화면으로 이동
-                                ((MainActivity)getContext()).client_.logoutClient();
+                                ((MainActivity)getActivity()).client_.logoutClient();
                                 Intent intent = new Intent(getContext(), LoginActivity.class);
                                 getActivity().startActivity(intent);
                                 getActivity().finish();
